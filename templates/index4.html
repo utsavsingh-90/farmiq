@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --teal:#0F6E56;--gray:#5F5E5A;--gray-light:#F1EFE8;
+  --red:#A32D2D;--red-light:#FCEBEB;
+  --purple:#6B3FA0;--purple-light:#F0E8FF;
+  --bg:#f7f9f7;--card:#fff;--border:#D3D1C7;
+  --text:#2C2C2A;--muted:#888780;
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--green-dark);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.3px}
+.logo-icon{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav{display:flex;gap:4px}
+.nav-btn{background:none;border:none;color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;transition:all 0.15s}
+.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.15);color:#fff}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--card);padding:0 24px}
+.tab{padding:14px 18px;border:none;background:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab.future{color:var(--purple) !important;opacity:0.8}
+.tab.future.active{border-bottom-color:var(--purple) !important;opacity:1}
+
+/* CONTENT */
+.content{padding:24px;flex:1}
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:18px}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+label{font-size:12px;font-weight:500;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border 0.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{resize:vertical;min-height:80px}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--teal)}
+.btn-secondary{background:var(--gray-light);color:var(--text)}.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--red-light);color:var(--red)}.btn-danger:hover{background:#F7C1C1}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-green{background:var(--green-light);color:var(--teal)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--gray-light);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-light)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:600;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--green);margin-top:2px}
+
+/* RECOMMENDATION */
+.rec-card{background:linear-gradient(135deg,var(--green-light) 0%,#fff 60%);border:1px solid #9FE1CB;border-radius:12px;padding:20px;margin-bottom:12px}
+.rec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.rec-crop{font-size:18px;font-weight:600;color:var(--green-dark)}
+.rec-score{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--teal);font-weight:500}
+.score-bar{width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;background:var(--green);border-radius:3px}
+.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rec-metric{font-size:12px}
+.rec-metric-label{color:var(--muted);margin-bottom:2px}
+.rec-metric-value{font-weight:600;color:var(--text)}
+
+/* DB ENGINE BANNER */
+.db-banner{background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border:1px solid #A5D6A7;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.db-banner-icon{font-size:24px}
+.db-banner-text{font-size:13px;color:#2E7D32;line-height:1.5}
+.db-banner-text strong{font-weight:600}
+
+/* FUTURE SCOPE BANNER */
+.future-banner{background:linear-gradient(135deg,var(--purple-light),#fff);border:2px dashed #C9A8E0;border-radius:12px;padding:24px;text-align:center;margin-bottom:20px}
+.future-banner-icon{font-size:48px;margin-bottom:12px}
+.future-banner-title{font-size:18px;font-weight:600;color:var(--purple);margin-bottom:8px}
+.future-banner-desc{font-size:13px;color:var(--gray);line-height:1.7;max-width:600px;margin:0 auto 16px}
+.feature-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{background:var(--purple-light);color:var(--purple);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500}
+
+/* MISC */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.alert-success{background:var(--green-light);color:var(--teal);border:1px solid #9FE1CB}
+.alert-error{background:var(--red-light);color:var(--red);border:1px solid #F7C1C1}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.empty-state{text-align:center;padding:40px;color:var(--muted)}
+.empty-state .icon{font-size:36px;margin-bottom:10px}
+.flex{display:flex;align-items:center;gap:8px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.mt{margin-top:16px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:600}
+
+/* THINKING DOTS */
+.thinking{display:flex;gap:4px;align-items:center;padding:10px 0}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:0.2s}.dot:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* QUERY DEMO STYLES */
+.query-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.query-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.query-header{background:var(--green);color:#fff;padding:12px 16px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.query-body{padding:16px;background:#1e1e1e;color:#d4d4d4;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;flex:1;white-space:pre-wrap;border-bottom:1px solid #333}
+.query-footer{background:var(--green-light);color:var(--green-dark);padding:10px 16px;font-size:12px;display:flex;align-items:center;gap:8px}
+.query-btn-wrap{padding:12px 16px;background:var(--card);border-top:1px solid var(--border)}
+.query-results-card{margin-top:24px}
+.sql-keyword{color:#569cd6;font-weight:600}
+.sql-string{color:#ce9178}
+.sql-comment{color:#6a9955}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🌾</div>
+      FarmIQ — Crop Recommendation System
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="switchMode('farmer',this)">Farmer Portal</button>
+      <button class="nav-btn" onclick="switchMode('admin',this)">Admin Dashboard</button>
+      <button class="nav-btn" onclick="switchMode('queries',this)">SQL Queries</button>
+    </div>
+  </div>
+
+  <!-- FARMER PORTAL -->
+  <div id="farmer-mode" class="page active">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('register',this)">Register</button>
+      <button class="tab" onclick="switchTab('land',this)">Land Details</button>
+      <button class="tab" onclick="switchTab('soil',this)">Soil Test</button>
+      <button class="tab" onclick="switchTab('recommend',this)">Get Recommendation</button>
+    </div>
+
+    <!-- REGISTER TAB -->
+    <div id="tab-register" class="content page active">
+      <div class="card">
+        <div class="card-title"><span>👤</span> Farmer Registration</div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Full Name</label><input id="f-name" placeholder="Rajinder Singh" /></div>
+          <div class="form-group"><label>Contact Number</label><input id="f-contact" placeholder="9876543210" /></div>
+          <div class="form-group"><label>Farm Size (acres)</label><input id="f-size" type="number" placeholder="12.5" /></div>
+          <div class="form-group full"><label>Location</label><input id="f-location" placeholder="Amritsar, Punjab" /></div>
+          <div class="form-group"><label>State / Region</label>
+            <select id="f-region">
+              <option value="">Select region...</option>
+              <option>Punjab</option><option>Haryana</option><option>Uttar Pradesh</option><option>Rajasthan</option>
+              <option>Gujarat</option><option>Maharashtra</option><option>Karnataka</option><option>Tamil Nadu</option>
+              <option>Telangana</option><option>Andhra Pradesh</option><option>West Bengal</option><option>Bihar</option>
+              <option>Madhya Pradesh</option><option>Chhattisgarh</option><option>Odisha</option><option>Assam</option>
+              <option>Kerala</option><option>Himachal Pradesh</option><option>Uttarakhand</option><option>Jharkhand</option>
+              <option>Goa</option><option>Manipur</option><option>Meghalaya</option><option>Tripura</option><option>Sikkim</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Irrigation Type (default)</label>
+            <select id="f-irrigation">
+              <option>Canal</option><option>Drip</option><option>Sprinkler</option><option>Flood</option><option>Rainfed</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt">
+          <button class="btn btn-primary" onclick="registerFarmer()">Register & Continue →</button>
+        </div>
+        <div id="reg-msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📋</span> Registered Farmers</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Contact</th><th>Location</th><th>Farm Size</th><th>Region</th></tr></thead>
+          <tbody id="farmer-table-body">
+            <tr><td colspan="5" class="empty-state" style="text-align:center;color:var(--muted)">Loading...</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- LAND TAB -->
+    <div id="tab-land" class="content page" style="display:none">
+      <div class="card">
+        <div class="card-title"><span>🗺️</span> Land Parcel Details</div>
+        <div id="land-farmer-select-wrap" class="form-group" style="margin-bottom:12px">
+          <label>Select Farmer</label>
+          <select id="land-farmer-select"><option value="">-- Select registered farmer --</option></select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Latitude</label><input id="l-lat" placeholder="31.6336" /></div>
+          <div class="form-group"><label>Longitude</label><input id="l-lon" placeholder="74.8723" /></div>
+          <div class="form-group"><label>Area (acres)</label><input id="l-area" type="number" placeholder="5.0" /></div>
+          <div class="form-group"><label>Irrigation Type</label>
+            <select id="l-irrigation">
+              <option>Canal</option><option>Drip</option><option>Sprinkler</option><option>Flood</option><option>Rainfed</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt">
+          <button class="btn btn-primary" onclick="addLand()">Save Land Parcel →</button>
+        </div>
+        <div id="land-msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📍</span> Saved Land Parcels</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Land ID</th><th>Farmer</th><th>Lat/Lon</th><th>Area</th><th>Irrigation</th></tr></thead>
+          <tbody id="land-table-body"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No land parcels added</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- SOIL TAB -->
+    <div id="tab-soil" class="content page" style="display:none">
+      <div class="card">
+        <div class="card-title"><span>🧪</span> Soil Test Results</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Select Land Parcel</label>
+          <select id="soil-land-select"><option value="">-- Select land parcel --</option></select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Test Date</label><input id="s-date" type="date" /></div>
+          <div class="form-group"><label>Nitrogen (kg/ha)</label><input id="s-n" type="number" placeholder="120" /></div>
+          <div class="form-group"><label>Phosphorus (kg/ha)</label><input id="s-p" type="number" placeholder="45" /></div>
+          <div class="form-group"><label>Potassium (kg/ha)</label><input id="s-k" type="number" placeholder="80" /></div>
+          <div class="form-group"><label>pH Level</label><input id="s-ph" type="number" step="0.1" placeholder="6.5" /></div>
+          <div class="form-group"><label>Organic Matter (%)</label><input id="s-om" type="number" step="0.1" placeholder="2.5" /></div>
+        </div>
+        <div class="mt">
+          <button class="btn btn-primary" onclick="saveSoilTest()">Save Soil Test →</button>
+        </div>
+        <div id="soil-msg"></div>
+      </div>
+
+      <div id="soil-tests-list" class="card">
+        <div class="card-title"><span>📊</span> Soil Test History</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Land</th><th>Farmer</th><th>N</th><th>P</th><th>K</th><th>pH</th><th>Organic Matter</th></tr></thead>
+          <tbody id="soil-table-body"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATION TAB (DB-driven) -->
+    <div id="tab-recommend" class="content page" style="display:none">
+      <div class="db-banner">
+        <div class="db-banner-icon">🗄️</div>
+        <div class="db-banner-text">
+          <strong>Database-Powered Recommendation Engine</strong><br>
+          Recommendations are generated by analysing your soil test data against crop requirements, regional climate data, and sustainability scores stored in our MySQL database — no external API needed.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📊</span> Smart Crop Recommendation</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Select Land Parcel</label>
+            <select id="rec-land-select"><option value="">-- Select --</option></select>
+          </div>
+          <div class="form-group"><label>Season</label>
+            <select id="rec-season">
+              <option>Kharif (Jun-Sep)</option><option>Rabi (Oct-Mar)</option><option>Zaid (Mar-Jun)</option><option>Year-Round</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Budget (₹)</label><input id="rec-budget" placeholder="50000" /></div>
+          <div class="form-group"><label>Priority</label>
+            <select id="rec-priority">
+              <option>Max Profit</option><option>Sustainability</option><option>Low Water Use</option><option>Quick Harvest</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt">
+          <button class="btn btn-primary" id="rec-btn" onclick="getRecommendation()">Analyse & Recommend →</button>
+        </div>
+      </div>
+      <div id="rec-output"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="admin-mode" class="page" style="display:none">
+    <div class="tabs">
+      <button class="tab active" onclick="switchAdminTab('overview',this)">Overview</button>
+      <button class="tab" onclick="switchAdminTab('farmers-admin',this)">Farmers</button>
+      <button class="tab" onclick="switchAdminTab('lands-admin',this)">Land Parcels</button>
+      <button class="tab" onclick="switchAdminTab('soils-admin',this)">Soil Tests</button>
+      <button class="tab" onclick="switchAdminTab('recs-admin',this)">Recommendations</button>
+    </div>
+
+    <div id="tab-overview" class="content page active">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Farmers</div><div class="stat-value" id="stat-farmers">—</div><div class="stat-sub">Registered</div></div>
+        <div class="stat-card"><div class="stat-label">Land Parcels</div><div class="stat-value" id="stat-lands">—</div><div class="stat-sub">Mapped</div></div>
+        <div class="stat-card"><div class="stat-label">Soil Tests</div><div class="stat-value" id="stat-soils">—</div><div class="stat-sub">Conducted</div></div>
+        <div class="stat-card"><div class="stat-label">Recommendations</div><div class="stat-value" id="stat-recs">—</div><div class="stat-sub">Generated</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📈</span> Recent Activity</div>
+        <div id="admin-activity" class="empty-state"><div class="icon">📭</div><div>Loading activity...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🏆</span> Top Recommendations</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Farmer</th><th>Land</th><th>Crop</th><th>Sustainability Score</th><th>Status</th></tr></thead>
+          <tbody id="top-recs-body"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="tab-farmers-admin" class="content page" style="display:none">
+      <div class="card">
+        <div class="section-header"><span class="section-title">All Farmers</span><span id="admin-farmer-count" class="badge badge-green">0 total</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Location</th><th>Farm Size</th><th>Region</th><th>Parcels</th></tr></thead>
+          <tbody id="admin-farmers-body"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="tab-lands-admin" class="content page" style="display:none">
+      <div class="card">
+        <div class="section-header"><span class="section-title">All Land Parcels</span><span id="admin-land-count" class="badge badge-green">0 total</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>Farmer</th><th>Coordinates</th><th>Area</th><th>Irrigation</th><th>Region</th></tr></thead>
+          <tbody id="admin-lands-body"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="tab-soils-admin" class="content page" style="display:none">
+      <div class="card">
+        <div class="section-header"><span class="section-title">Soil Tests</span><span id="admin-soil-count" class="badge badge-green">0 total</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Land ID</th><th>Farmer</th><th>N</th><th>P</th><th>K</th><th>pH</th><th>OM%</th></tr></thead>
+          <tbody id="admin-soils-body"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="tab-recs-admin" class="content page" style="display:none">
+      <div class="card">
+        <div class="section-header"><span class="section-title">All Recommendations</span><span id="admin-rec-count" class="badge badge-green">0 total</span></div>
+        <div id="admin-recs-list"><div class="empty-state"><div class="icon">📭</div>Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUERY DEMONSTRATION -->
+  <div id="queries-mode" class="page" style="display:none">
+    <div class="content">
+      <div class="section-header" style="margin-bottom:24px">
+        <div>
+          <h1 class="section-title" style="font-size:24px">Query Demonstration</h1>
+          <p style="color:var(--muted);font-size:13px;margin-top:4px">Execution of SELECT, JOIN, GROUP BY, Nested Subqueries, and Stored Procedures</p>
+        </div>
+      </div>
+
+      <div class="query-grid">
+        <!-- Q1 -->
+        <div class="query-card">
+          <div class="query-header">JOIN + FILTER</div>
+          <div style="padding:12px 16px;font-weight:600;font-size:14px;color:var(--green-dark)">High-Sustainability Recommendations</div>
+          <div class="query-body"><span class="sql-keyword">SELECT</span> f.name, rg.region_name, c.crop_name, 
+       r.predicted_yield, r.expected_profit, 
+       r.sustainability_score
+<span class="sql-keyword">FROM</span> Recommendation r
+<span class="sql-keyword">JOIN</span> Land_Parcel lp <span class="sql-keyword">ON</span> r.land_id = lp.land_id
+<span class="sql-keyword">JOIN</span> Farmer f       <span class="sql-keyword">ON</span> lp.farmer_id = f.farmer_id
+<span class="sql-keyword">JOIN</span> Region rg      <span class="sql-keyword">ON</span> lp.region_id = rg.region_id
+<span class="sql-keyword">JOIN</span> Crop c         <span class="sql-keyword">ON</span> r.crop_id = c.crop_id
+<span class="sql-keyword">WHERE</span> r.sustainability_score > 80;</div>
+          <div class="query-footer">💡 4-table JOIN showing relational power; filters on business rule (score > 80)</div>
+          <div class="query-btn-wrap">
+            <button class="btn btn-primary" onclick="runDemoQuery('sust', this)">Run Query →</button>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="query-card">
+          <div class="query-header">BETWEEN + CROSS JOIN</div>
+          <div style="padding:12px 16px;font-weight:600;font-size:14px;color:var(--green-dark)">Crop–Soil Suitability Match</div>
+          <div class="query-body"><span class="sql-keyword">SELECT</span> c.crop_name, st.pH, st.nitrogen_level,
+<span class="sql-keyword">CASE</span> 
+    <span class="sql-keyword">WHEN</span> st.pH <span class="sql-keyword">BETWEEN</span> cr.min_ph <span class="sql-keyword">AND</span> cr.max_ph
+     <span class="sql-keyword">AND</span> st.nitrogen_level <span class="sql-keyword">BETWEEN</span> cr.min_nitrogen <span class="sql-keyword">AND</span> cr.max_nitrogen
+    <span class="sql-keyword">THEN</span> <span class="sql-string">'SUITABLE'</span>
+    <span class="sql-keyword">ELSE</span> <span class="sql-string">'NOT SUITABLE'</span>
+<span class="sql-keyword">END AS</span> suitability
+<span class="sql-keyword">FROM</span> Soil_Test st
+<span class="sql-keyword">CROSS JOIN</span> Crop c
+<span class="sql-keyword">JOIN</span> Crop_Requirement cr <span class="sql-keyword">ON</span> c.crop_id = cr.crop_id
+<span class="sql-keyword">WHERE</span> st.land_id = 1;</div>
+          <div class="query-footer">💡 CROSS JOIN + CASE expression for rule-based classification</div>
+          <div class="query-btn-wrap">
+            <button class="btn btn-primary" onclick="runDemoQuery('match', this)">Run Query →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="query-grid" style="grid-template-columns: repeat(3, 1fr)">
+        <!-- Q3 -->
+        <div class="query-card">
+          <div class="query-header">GROUP BY + AVG</div>
+          <div style="padding:12px 16px;font-weight:600;font-size:14px;color:var(--green-dark)">Avg Profit by Crop Type</div>
+          <div class="query-body"><span class="sql-keyword">SELECT</span> c.crop_type, 
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> total_recs,
+       <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(r.expected_profit),2) <span class="sql-keyword">AS</span> avg_profit
+<span class="sql-keyword">FROM</span> Recommendation r
+<span class="sql-keyword">JOIN</span> Crop c <span class="sql-keyword">ON</span> r.crop_id = c.crop_id
+<span class="sql-keyword">GROUP BY</span> c.crop_type
+<span class="sql-keyword">ORDER BY</span> avg_profit <span class="sql-keyword">DESC</span>;</div>
+          <div class="query-footer">💡 Aggregation across crop categories</div>
+          <div class="query-btn-wrap">
+            <button class="btn btn-primary" onclick="runDemoQuery('profit', this)">Run Query →</button>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="query-card">
+          <div class="query-header">NESTED SUBQUERY</div>
+          <div style="padding:12px 16px;font-weight:600;font-size:14px;color:var(--green-dark)">Lands Above-Average Yield</div>
+          <div class="query-body"><span class="sql-keyword">SELECT</span> lp.land_id, f.name, r.predicted_yield
+<span class="sql-keyword">FROM</span> Recommendation r
+<span class="sql-keyword">JOIN</span> Land_Parcel lp <span class="sql-keyword">ON</span> r.land_id = lp.land_id
+<span class="sql-keyword">JOIN</span> Farmer f       <span class="sql-keyword">ON</span> lp.farmer_id = f.farmer_id
+<span class="sql-keyword">WHERE</span> r.predicted_yield > (
+    <span class="sql-keyword">SELECT AVG</span>(predicted_yield) 
+    <span class="sql-keyword">FROM</span> Recommendation
+);</div>
+          <div class="query-footer">💡 Correlated subquery; compares against global average</div>
+          <div class="query-btn-wrap">
+            <button class="btn btn-primary" onclick="runDemoQuery('yield', this)">Run Query →</button>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="query-card">
+          <div class="query-header">STORED PROCEDURE</div>
+          <div style="padding:12px 16px;font-weight:600;font-size:14px;color:var(--green-dark)">GetSuitableCrops(land_id)</div>
+          <div class="query-body"><span class="sql-keyword">CALL</span> GetSuitableCrops(5);
+<span class="sql-comment">-- Returns crops where soil pH/N 
+-- is within crop requirements</span></div>
+          <div class="query-footer">💡 Encapsulates complex matching logic into a single call</div>
+          <div class="query-btn-wrap">
+            <button class="btn btn-primary" onclick="runDemoQuery('sp', this)">Run Query →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="query-results-wrap" style="display:none">
+        <div class="card query-results-card">
+          <div class="section-header">
+            <span class="section-title">Query Results</span>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('query-results-wrap').style.display='none'">Clear Results</button>
+          </div>
+          <div class="table-wrap">
+            <table id="query-results-table">
+              <thead id="query-results-head"></thead>
+              <tbody id="query-results-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+//  CACHE
+// ════════════════════════════════
+let FARMERS = [];
+let LANDS   = [];
+let SOILS   = [];
+let RECS    = [];
+
+// ════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════
+function switchMode(mode, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('farmer-mode').style.display  = mode === 'farmer' ? 'block' : 'none';
+  document.getElementById('admin-mode').style.display   = mode === 'admin'  ? 'block' : 'none';
+  document.getElementById('queries-mode').style.display = mode === 'queries' ? 'block' : 'none';
+  if (mode === 'admin') loadAdmin();
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('#farmer-mode .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['register','land','soil','recommend'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === id ? 'block' : 'none';
+  });
+  if (id === 'register') loadFarmers();
+  if (id === 'land')     { loadFarmers(); loadLands(); }
+  if (id === 'soil')     { loadLands(); loadSoils(); }
+  if (id === 'recommend'){ loadLands(); }
+}
+
+function switchAdminTab(id, btn) {
+  document.querySelectorAll('#admin-mode .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['overview','farmers-admin','lands-admin','soils-admin','recs-admin'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === id ? 'block' : 'none';
+  });
+  loadAdmin();
+}
+
+// ════════════════════════════════
+//  API HELPERS
+// ════════════════════════════════
+async function api(method, url, body) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  return res.json();
+}
+
+// ════════════════════════════════
+//  FARMERS
+// ════════════════════════════════
+async function loadFarmers() {
+  try {
+    const raw = await api('GET', '/api/farmers');
+    FARMERS = raw.map(f => ({
+      id: f.id, name: f.name, contact: f.contact,
+      location: f.location, size: f.size,
+      region: f.region || '', region_id: f.region_id || null,
+      parcels: f.parcels || 0
+    }));
+    renderFarmerTable();
+    refreshLandFarmerSelect();
+  } catch(e) { console.error('loadFarmers:', e); }
+}
+
+function renderFarmerTable() {
+  const tbody = document.getElementById('farmer-table-body');
+  if (!FARMERS.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No farmers registered yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = FARMERS.map(f => `<tr>
+    <td><strong>${f.name}</strong></td>
+    <td class="mono">${f.contact}</td>
+    <td>${f.location}</td>
+    <td>${f.size} acres</td>
+    <td><span class="badge badge-green">${f.region || '—'}</span></td>
+  </tr>`).join('');
+}
+
+async function registerFarmer() {
+  const name     = document.getElementById('f-name').value.trim();
+  const contact  = document.getElementById('f-contact').value.trim();
+  const size     = document.getElementById('f-size').value.trim();
+  const location = document.getElementById('f-location').value.trim();
+  const region   = document.getElementById('f-region').value;
+
+  if (!name || !contact || !size || !location || !region) {
+    showMsg('reg-msg','Please fill all fields.','error'); return;
+  }
+  try {
+    const res = await api('POST', '/api/farmers', { name, contact, size, location, region });
+    if (res.error) { showMsg('reg-msg', res.error, 'error'); return; }
+    FARMERS.push({ id: res.farmer_id, name, contact, location, size: parseFloat(size), region, region_id: res.region_id, parcels: 0 });
+    renderFarmerTable();
+    refreshLandFarmerSelect();
+    showMsg('reg-msg', `✓ ${name} registered successfully! Proceed to Land Details tab.`, 'success');
+    ['f-name','f-contact','f-size','f-location'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-region').value = '';
+  } catch(e) { showMsg('reg-msg', 'Server error: ' + e.message, 'error'); }
+}
+
+// ════════════════════════════════
+//  LAND PARCELS
+// ════════════════════════════════
+function refreshLandFarmerSelect() {
+  const sel = document.getElementById('land-farmer-select');
+  sel.innerHTML = '<option value="">-- Select registered farmer --</option>' +
+    FARMERS.map(f => `<option value="${f.id}" data-region="${f.region_id}">${f.name} (${f.region || '?'})</option>`).join('');
+}
+
+async function loadLands() {
+  try {
+    LANDS = await api('GET', '/api/lands');
+    renderLandTable();
+    refreshSoilLandSelect();
+    refreshRecLandSelect();
+  } catch(e) { console.error('loadLands:', e); }
+}
+
+function renderLandTable() {
+  const tbody = document.getElementById('land-table-body');
+  if (!LANDS.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No land parcels added</td></tr>';
+    return;
+  }
+  tbody.innerHTML = LANDS.map(l => `<tr>
+    <td><span class="badge badge-amber">L-${l.id}</span></td>
+    <td>${l.farmer}</td>
+    <td class="mono" style="font-size:11px">${parseFloat(l.lat).toFixed(4)}, ${parseFloat(l.lon).toFixed(4)}</td>
+    <td>${l.area} acres</td>
+    <td>${l.irrigation}</td>
+  </tr>`).join('');
+}
+
+async function addLand() {
+  const farmerSel = document.getElementById('land-farmer-select');
+  const farmer_id = parseInt(farmerSel.value);
+  const lat       = document.getElementById('l-lat').value.trim();
+  const lon       = document.getElementById('l-lon').value.trim();
+  const area      = parseFloat(document.getElementById('l-area').value);
+  const irrigation= document.getElementById('l-irrigation').value;
+
+  if (!farmer_id || !lat || !lon || !area) {
+    showMsg('land-msg','Please fill all fields and select a farmer.','error'); return;
+  }
+  let farmer = FARMERS.find(f => f.id === farmer_id);
+  if (!farmer) { showMsg('land-msg','Could not find selected farmer.','error'); return; }
+
+  let region_id = farmer.region_id;
+  if (!region_id && farmer.region) {
+    try {
+      const regions = await api('GET', '/api/regions');
+      const match = regions.find(r => r.region_name === farmer.region);
+      if (match) { region_id = match.region_id; farmer.region_id = region_id; }
+    } catch(e) {}
+  }
+  if (!region_id) { showMsg('land-msg','Could not determine region for selected farmer.','error'); return; }
+
+  try {
+    const res = await api('POST', '/api/lands', { farmer_id, region_id: farmer.region_id, lat, lon, area, irrigation });
+    if (res.error) { showMsg('land-msg', res.error, 'error'); return; }
+    LANDS.push({ id: res.land_id, lat, lon, area, irrigation, farmer_id, farmer: farmer.name, region: farmer.region });
+    renderLandTable();
+    refreshSoilLandSelect();
+    refreshRecLandSelect();
+    showMsg('land-msg', `✓ Land parcel #${res.land_id} saved. Add soil test data next.`, 'success');
+    ['l-lat','l-lon','l-area'].forEach(id => document.getElementById(id).value = '');
+  } catch(e) { showMsg('land-msg', 'Server error: ' + e.message, 'error'); }
+}
+
+// ════════════════════════════════
+//  SOIL TESTS
+// ════════════════════════════════
+function refreshSoilLandSelect() {
+  const sel = document.getElementById('soil-land-select');
+  sel.innerHTML = '<option value="">-- Select land parcel --</option>' +
+    LANDS.map(l => `<option value="${l.id}">L-${l.id} — ${l.farmer} (${l.region}, ${l.area} acres)</option>`).join('');
+  const dateEl = document.getElementById('s-date');
+  if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+}
+
+function refreshRecLandSelect() {
+  const sel = document.getElementById('rec-land-select');
+  sel.innerHTML = '<option value="">-- Select --</option>' +
+    LANDS.map(l => `<option value="${l.id}">L-${l.id} — ${l.farmer} (${l.region})</option>`).join('');
+}
+
+async function loadSoils() {
+  try {
+    SOILS = await api('GET', '/api/soils');
+    renderSoilTable();
+  } catch(e) { console.error('loadSoils:', e); }
+}
+
+function renderSoilTable() {
+  const tbody = document.getElementById('soil-table-body');
+  if (!SOILS.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No soil tests recorded yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = SOILS.map(s => `<tr>
+    <td class="mono">${s.date}</td>
+    <td><span class="badge badge-amber">L-${s.land_id}</span></td>
+    <td>${s.farmer}</td>
+    <td>${s.n}</td><td>${s.p}</td><td>${s.k}</td>
+    <td><span class="badge ${s.ph < 5.5 ? 'badge-red' : s.ph > 7.5 ? 'badge-amber' : 'badge-green'}">${s.ph}</span></td>
+    <td>${s.om}%</td>
+  </tr>`).join('');
+}
+
+async function saveSoilTest() {
+  const land_id = parseInt(document.getElementById('soil-land-select').value);
+  const date    = document.getElementById('s-date').value;
+  const n  = parseFloat(document.getElementById('s-n').value);
+  const p  = parseFloat(document.getElementById('s-p').value);
+  const k  = parseFloat(document.getElementById('s-k').value);
+  const ph = parseFloat(document.getElementById('s-ph').value);
+  const om = parseFloat(document.getElementById('s-om').value);
+
+  if (!land_id || !date || isNaN(n) || isNaN(p) || isNaN(k) || isNaN(ph) || isNaN(om)) {
+    showMsg('soil-msg','Please fill all soil test fields.','error'); return;
+  }
+  if (ph < 0 || ph > 14) { showMsg('soil-msg','pH must be between 0 and 14.','error'); return; }
+
+  try {
+    const res = await api('POST', '/api/soils', { land_id, date, n, p, k, ph, om });
+    if (res.error) { showMsg('soil-msg', res.error, 'error'); return; }
+    const land = LANDS.find(l => l.id === land_id);
+    SOILS = SOILS.filter(s => !(s.land_id === land_id && s.date === date));
+    SOILS.unshift({ land_id, date, n, p, k, ph, om, farmer: land ? land.farmer : '?' });
+    renderSoilTable();
+    showMsg('soil-msg','✓ Soil test saved! Go to Recommendation tab for suggestions.','success');
+  } catch(e) { showMsg('soil-msg','Server error: ' + e.message,'error'); }
+}
+
+// ════════════════════════════════
+//  DB-DRIVEN RECOMMENDATION
+// ════════════════════════════════
+async function getRecommendation() {
+  const landId  = parseInt(document.getElementById('rec-land-select').value);
+  const season  = document.getElementById('rec-season').value;
+  const budget  = document.getElementById('rec-budget').value;
+  const priority= document.getElementById('rec-priority').value;
+
+  if (!landId) {
+    document.getElementById('rec-output').innerHTML = '<div class="alert alert-error">Please select a land parcel.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('rec-btn');
+  btn.disabled = true;
+  btn.textContent = 'Analysing...';
+
+  document.getElementById('rec-output').innerHTML = `
+    <div class="card">
+      <div class="card-title"><span>🗄️</span> Querying Database...</div>
+      <div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div style="font-size:13px;color:var(--muted)">Matching soil data against crop requirements and climate records...</div>
+    </div>`;
+
+  try {
+    const data = await api('POST', '/api/smart-recommend', { land_id: landId, season, budget, priority });
+
+    if (data.error) {
+      document.getElementById('rec-output').innerHTML = `<div class="alert alert-error">⚠️ ${data.error}</div>`;
+      btn.disabled = false; btn.textContent = 'Analyse & Recommend →';
+      return;
+    }
+
+    const recs = data.recommendations;
+
+    // Save top recommendation to DB
+    if (recs.length > 0) {
+      const top = recs[0];
+      const yieldNum = parseFloat(top.yield) || 3.0;
+      await api('POST', '/api/recommendations', {
+        land_id: landId,
+        crop_name: top.crop,
+        predicted_yield: yieldNum,
+        sustainability_score: top.score,
+        recommendation_date: new Date().toISOString().split('T')[0]
+      }).catch(e => console.warn('Could not save rec to DB:', e));
+    }
+
+    document.getElementById('rec-output').innerHTML = `
+      <div class="alert alert-success">
+        ✓ Analysis complete — ${recs.length} crops recommended for <strong>${data.land}</strong>'s land in <strong>${data.region}</strong>
+        &nbsp;·&nbsp; <span style="font-size:12px;opacity:0.8">Soil data from ${data.soil_date} · Powered by MySQL DB engine</span>
+      </div>
+      ${recs.map((r, i) => `
+      <div class="rec-card">
+        <div class="rec-header">
+          <div>
+            <span style="font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase">#${i+1} ${i===0?'Best Match':i===1?'Runner Up':'Alternative'}</span>
+            <div class="rec-crop">🌱 ${r.crop} <span style="font-size:13px;color:var(--muted);font-weight:400">(${r.type})</span></div>
+          </div>
+          <div class="rec-score">
+            <div class="score-bar"><div class="score-fill" style="width:${r.score}%"></div></div>
+            <span>${r.score}/100</span>
+          </div>
+        </div>
+        <div class="rec-grid">
+          <div class="rec-metric"><div class="rec-metric-label">Est. Yield</div><div class="rec-metric-value">${r.yield}</div></div>
+          <div class="rec-metric"><div class="rec-metric-label">Expected Profit</div><div class="rec-metric-value">${r.profit}</div></div>
+          <div class="rec-metric"><div class="rec-metric-label">Duration</div><div class="rec-metric-value">${r.duration}</div></div>
+          <div class="rec-metric"><div class="rec-metric-label">Water Need</div><div class="rec-metric-value"><span class="badge ${r.water==='low'?'badge-green':r.water==='medium'?'badge-amber':'badge-red'}">${r.water}</span></div></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px">${r.reason}</div>
+        <div style="font-size:12px;color:var(--teal);background:var(--green-light);padding:8px 12px;border-radius:6px">💡 ${r.tips}</div>
+      </div>`).join('')}`;
+
+  } catch(e) {
+    document.getElementById('rec-output').innerHTML = `<div class="alert alert-error">Error: ${e.message}. Please try again.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Analyse & Recommend →';
+}
+
+// ════════════════════════════════
+//  DEMO QUERIES
+// ════════════════════════════════
+async function runDemoQuery(key, btn) {
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  
+  try {
+    const data = await api('POST', '/api/demo-query', { key });
+    if (data.error) throw new Error(data.error);
+    
+    const wrap = document.getElementById('query-results-wrap');
+    const head = document.getElementById('query-results-head');
+    const body = document.getElementById('query-results-body');
+    
+    wrap.style.display = 'block';
+    
+    if (!data.length) {
+      head.innerHTML = '';
+      body.innerHTML = '<tr><td colspan="100" class="empty-state">Query returned no results.</td></tr>';
+    } else {
+      const cols = Object.keys(data[0]);
+      head.innerHTML = `<tr>${cols.map(c => `<th>${c.replace(/_/g,' ')}</th>`).join('')}</tr>`;
+      body.innerHTML = data.map(row => `<tr>${cols.map(c => `<td>${row[c] !== null ? row[c] : '—'}</td>`).join('')}</tr>`).join('');
+    }
+    
+    // Scroll to results
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+  } catch(e) {
+    alert('Query Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+// ════════════════════════════════
+//  ADMIN DASHBOARD
+// ════════════════════════════════
+async function loadAdmin() {
+  try {
+    const [stats, farmers, lands, soils, recs] = await Promise.all([
+      api('GET', '/api/stats'),
+      api('GET', '/api/farmers'),
+      api('GET', '/api/lands'),
+      api('GET', '/api/soils'),
+      api('GET', '/api/recommendations')
+    ]);
+
+    document.getElementById('stat-farmers').textContent = stats.farmers;
+    document.getElementById('stat-lands').textContent   = stats.lands;
+    document.getElementById('stat-soils').textContent   = stats.soils;
+    document.getElementById('stat-recs').textContent    = stats.recommendations;
+
+    const activities = [
+      ...farmers.map(f => `👤 ${f.name} registered from ${f.location}`),
+      ...lands.map(l   => `📍 Land L-${l.id} added for ${l.farmer} (${l.area} acres)`),
+      ...soils.map(s   => `🧪 Soil test for L-${s.land_id} (${s.farmer}) on ${s.date}`),
+      ...recs.map(r    => `✅ ${r.crop} recommended for ${r.farmer} (score: ${r.score})`)
+    ];
+    const actEl = document.getElementById('admin-activity');
+    if (activities.length) {
+      actEl.innerHTML = activities.slice(-8).reverse().map(a =>
+        `<div style="padding:8px 0;border-bottom:1px solid var(--gray-light);font-size:13px">${a}</div>`
+      ).join('');
+    } else {
+      actEl.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No activity yet.</div>';
+    }
+
+    const topBody = document.getElementById('top-recs-body');
+    if (recs.length) {
+      topBody.innerHTML = recs.slice(0, 10).map(r => `<tr>
+        <td>${r.farmer}</td>
+        <td><span class="badge badge-amber">L-${r.land_id}</span></td>
+        <td><strong>${r.crop}</strong></td>
+        <td>
+          <div class="score-bar" style="display:inline-block">
+            <div class="score-fill" style="width:${r.score}%"></div>
+          </div> ${r.score}
+        </td>
+        <td><span class="badge ${r.score>=80?'badge-green':r.score>=60?'badge-amber':'badge-red'}">${r.score>=80?'Excellent':r.score>=60?'Good':'Fair'}</span></td>
+      </tr>`).join('');
+    } else {
+      topBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No recommendations yet</td></tr>';
+    }
+
+    document.getElementById('admin-farmer-count').textContent = `${farmers.length} total`;
+    const afb = document.getElementById('admin-farmers-body');
+    afb.innerHTML = farmers.length ? farmers.map(f => `<tr>
+      <td class="mono">#${f.id}</td><td><strong>${f.name}</strong></td>
+      <td class="mono">${f.contact}</td><td>${f.location}</td>
+      <td>${f.size} ac</td>
+      <td><span class="badge badge-green">${f.region || '—'}</span></td>
+      <td><span class="badge badge-amber">${f.parcels || 0}</span></td>
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No farmers registered</td></tr>';
+
+    document.getElementById('admin-land-count').textContent = `${lands.length} total`;
+    const alb = document.getElementById('admin-lands-body');
+    alb.innerHTML = lands.length ? lands.map(l => `<tr>
+      <td><span class="badge badge-amber">L-${l.id}</span></td><td>${l.farmer}</td>
+      <td class="mono" style="font-size:11px">${parseFloat(l.lat).toFixed(4)}, ${parseFloat(l.lon).toFixed(4)}</td>
+      <td>${l.area} ac</td><td>${l.irrigation}</td><td>${l.region}</td>
+    </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No land parcels</td></tr>';
+
+    document.getElementById('admin-soil-count').textContent = `${soils.length} total`;
+    const asb = document.getElementById('admin-soils-body');
+    asb.innerHTML = soils.length ? soils.map(s => `<tr>
+      <td class="mono">${s.date}</td><td>L-${s.land_id}</td><td>${s.farmer}</td>
+      <td>${s.n}</td><td>${s.p}</td><td>${s.k}</td>
+      <td><span class="badge ${s.ph<5.5?'badge-red':s.ph>7.5?'badge-amber':'badge-green'}">${s.ph}</span></td>
+      <td>${s.om}%</td>
+    </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No soil tests</td></tr>';
+
+    document.getElementById('admin-rec-count').textContent = `${recs.length} total`;
+    const arl = document.getElementById('admin-recs-list');
+    arl.innerHTML = recs.length ? recs.map(r => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-light)">
+        <div>
+          <div style="font-weight:500">🌱 ${r.crop} <span style="color:var(--muted);font-weight:400;font-size:12px">→ ${r.farmer}</span></div>
+          <div style="font-size:12px;color:var(--muted)">L-${r.land_id} · ${r.date}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span>₹${Number(r.profit).toLocaleString('en-IN')}</span>
+          <span class="badge ${r.score>=80?'badge-green':r.score>=60?'badge-amber':'badge-red'}">Score: ${r.score}</span>
+        </div>
+      </div>`).join('') : '<div class="empty-state"><div class="icon">📭</div>No recommendations yet</div>';
+
+  } catch(e) { console.error('loadAdmin:', e); }
+}
+
+// ════════════════════════════════
+//  UTILS
+// ════════════════════════════════
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="alert alert-${type==='success'?'success':'error'}" style="margin-top:12px">${text}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 5000);
+}
+
+(async function init() {
+  await loadFarmers();
+  await loadLands();
+  await loadSoils();
+  document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
+})();
+</script>
+</body>
+</html>
