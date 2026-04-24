@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
@@ -30,6 +30,10 @@ def get_db():
 @app.route('/')
 def home():
     return render_template('index4.html')
+
+@app.route('/stats-dashboard')
+def stats_dashboard():
+    return send_from_directory('/Users/utsavsingh/Downloads', 'stats_dashboard.html')
 
 
 # ════════════════════════════════════════════
@@ -642,4 +646,4 @@ def proxy_recommend():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
