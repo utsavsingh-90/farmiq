@@ -2,9 +2,6 @@
 
 FarmIQ is a comprehensive civic-tech platform designed to empower farmers with data-driven crop recommendations and provide administrators with strategic oversight of regional agricultural health.
 
-## 🚀 Quick Links
-- **Local Application:** [http://127.0.0.1:5001/](http://127.0.0.1:5001/)
-- **Stats Dashboard:** [Stats Dashboard (Local)](file:///Users/utsavsingh/Downloads/stats_dashboard.html)
 
 ---
 
@@ -43,20 +40,6 @@ A dedicated educational section showing complex SQL operations on the live datas
 ### 4. Stats Dashboard
 - An external high-fidelity dashboard linked directly from the navigation bar, providing deep visual insights into agricultural trends.
 
----
 
-## ⚙️ Project Structure
-- `app.py`: Main Flask server with API endpoints.
-- `templates/index4.html`: Unified frontend interface.
-- `crop_recommendation_fixed.sql`: Database schema and seed data.
-- `/Users/utsavsingh/Downloads/stats_dashboard.html`: External statistics visualization.
 
----
 
-## 🏃 How to Run
-1. Ensure MySQL is running with the `crop_recommendation_db` database.
-2. Start the Flask server:
-   ```bash
-   python3 app.py
-   ```
-3. Open the browser at `http://127.0.0.1:5001/`.
